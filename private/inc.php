@@ -1,8 +1,13 @@
 <?php
 
-require 'TestService.php';
+require 'GameService.php';
+require 'ReportService.php';
 
-require 'TestController.php';
+require 'GameController.php';
+require 'ReportController.php';
+
+require 'DBManager.php';
+require 'CacheManager.php';
 
 require 'Util.php';
 

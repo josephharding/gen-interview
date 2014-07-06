@@ -4,7 +4,12 @@ class CacheManager {
     
     private $m_memcache;
 
+    // move this into a define
     private $m_numLeaders = 10;
+
+    const LOWEST_LEADER_KEY = "lowest_leader_score";
+
+    const LEADER_KEY_PREFIX = "leader_";
 
     public function __construct() {
         $this->m_memcache = new Memcache;
@@ -12,38 +17,46 @@ class CacheManager {
     }
 
     public function getLowestLeaderScore() {
-        $result = -1;
-
-        $lowestLeader = $this->m_memcache->get('lowest_leader_score');
+        $result = 0;
+        $lowestLeader = $this->m_memcache->get(self::LOWEST_LEADER_KEY);
         if(isset($lowestLeader)) {
             $result = $lowestLeader;
         }
-
         return $result;
     }
 
     public function reassignLeaders($database) {
-        $users = $database->getTopUsersByScore($this->m_numLeaders);
-        arr_log($users);
-
-        $numLeaders = count($users);
+        $userIds = $database->getTopUserIdsByScore($this->m_numLeaders);
+        $numLeaders = count($userIds);
         for($index = 0; $index < $numLeaders; $index++) {
-            $this->m_memcache->set("leader_" . $index, $users[$index]["user_id"]);
+            $this->m_memcache->set($this->getLeaderKey($index), $userIds[$index]);
         }
         if($numLeaders > 0) {
-            $this->m_memcache->set("lowest_leader_score", $users[$numLeaders - 1]["high_score"]);
+            $this->m_memcache->set(self::LOWEST_LEADER_KEY, $userIds[$numLeaders - 1]);
         }
     }
 
     public function getLeaders() {
         $result = array();
         for($index = 0; $index < $this->m_numLeaders; $index++) {
-            $val = $this->m_memcache->get("leader_" . $index);
+            $val = $this->m_memcache->get($this->getLeaderKey($index));
             if($val != false) {
                 $result[] = $val;
             }
         }
         return $result;
+    }
+
+    // looks like delete always returns false...
+    public function resetCache() {
+        $this->m_memcache->delete(self::LOWEST_LEADER_KEY);
+        for($index = 0; $index < $this->m_numLeaders; $index++) {
+            $this->m_memcache->delete($this->getLeaderKey($index));
+        }
+    }
+
+    private function getLeaderKey($leaderPlace) {
+        return self::LEADER_KEY_PREFIX . $leaderPlace;
     }
 
 }

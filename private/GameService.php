@@ -5,45 +5,34 @@ class GameService {
     // setup
     // CREATE DATABASE high_scores;
 
+    /*
+    
+    usage: curl -H 'content-type:application/json' -d '{"user_id":"112", "user_score":"110"}' http://josephharding.net/highscore/service/game/recordScore
+    */
     public function recordScore($params) {
+        $result = false;
         if(isset($params['user_id']) && isset($params['user_score'])) {
+            $result = true;
             $userId = $params['user_id'];
             $userScore = $params['user_score'];
 
-            $gameController = new GameController();
-            $gameController->recordScore($userId, $userScore);
+            $controller = new GameController();
+            $controller->recordScore($userId, $userScore);
         } else {
             jlog("missing required params!");
         }
+        return $result;
+    }
+
+
+    /*
+    usage: curl http://josephharding.net/highscore/service/game/resetCache
+    */
+    public function resetCache() {
+        $controller = new GameController();
+        return $controller->resetCache();
     }
     
-    public function sayHello($name) {
-        arr_log($name);
-
-        // this will show us if mysql is installed with a PDO driver
-        arr_log(PDO::getAvailableDrivers());
-
-        $user = 'hs_admin';
-        $pass = 'kixeye_interview';
-
-        try {
-            $db = new PDO("mysql:host=localhost;dbname=high_scores", $user, $pass);
-            $result = $db->query('SELECT * FROM high_score');
-            while($row = $result->fetch()) {
-                arr_log($row);
-            }
-        } catch(PDOException $exception) {
-            arr_log($exception);
-        }
-    }
-
-    public function getJSONObject($input) {
-        if(isset($input['data']) && json_decode($input['data'], true) != null) {
-            $params = json_decode($input['data'], true);
-        }
-        return $params;
-    }
-
 }
 
 ?>

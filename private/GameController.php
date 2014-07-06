@@ -2,10 +2,12 @@
 
 class GameController {
 
-    public function recordScore($userId, $userScore) {
-        // this could be placed in a CacheManager class
-        
+    public function recordScore($userId, $userScore) {        
         $database = new DBManager();
+
+        // make sure this user has an entry in our users database (this would be done elsewhere, maybe on user registration)
+        $this->checkUserEntry($database, $userId);
+
         // add an entry to our score table
         $database->addScoreEntry($userId, $userScore);
         
@@ -22,8 +24,17 @@ class GameController {
                 $cache->reassignLeaders($database);
             }
         }
+    }
 
-        $database->close();
+    public function resetCache() {
+        $cache = new CacheManager();
+        return $cache->resetCache();
+    }
+
+    private function checkUserEntry($database, $userId) {
+        if($database->getUserEntry($userId) == null) {
+            $database->setUserEntry($userId);
+        }
     }
 
 }

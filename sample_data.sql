@@ -1,12 +1,12 @@
 USE high_scores;
 
 DROP TABLE IF EXISTS users;
-CREATE TABLE users (user_id VARCHAR(20), high_score VARCHAR(20), PRIMARY KEY (user_id));
+CREATE TABLE users (user_id VARCHAR(20), high_score INTEGER(20), PRIMARY KEY (user_id));
 INSERT INTO users (user_id, high_score) VALUES ('123', '0');
 INSERT INTO users (user_id, high_score) VALUES ('101', '0');
 
 DROP TABLE IF EXISTS scores;
-CREATE TABLE scores (user_id VARCHAR(20), score VARCHAR(20), ts_create TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE scores (user_id VARCHAR(20), score INTEGER(20), ts_create TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
 INSERT INTO scores (user_id, score) VALUES ('123', '100');
 INSERT INTO scores (user_id, score) VALUES ('101', '80');
 INSERT INTO scores (user_id, score) VALUES ('101', '70');

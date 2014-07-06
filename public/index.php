@@ -36,13 +36,12 @@ if(is_string($pathArray[PATH_INDEX_LAYER]) && strtolower($pathArray[PATH_INDEX_L
         $service = new $serviceClassName();
         if(method_exists($service, $serviceMethodName)) {
             $params = array();
-            if(isset($requestURL['query'])) {
-                parse_str($requestURL['query'], $params);
-                if(isset($params['data']) && json_decode($params['data'], true) != null) {
-                    $params = json_decode($params['data'], true);
+            if(isset($HTTP_RAW_POST_DATA) && $HTTP_RAW_POST_DATA != "") {
+                if(json_decode($HTTP_RAW_POST_DATA, true) != null) {
+                    $params = json_decode($HTTP_RAW_POST_DATA, true);
                 }
             }
-            call_user_func(array($service, $serviceMethodName), $params); 
+            echo json_encode(call_user_func(array($service, $serviceMethodName), $params)); 
         } else {
             jlog("no method with name $serviceMethodName");
         }

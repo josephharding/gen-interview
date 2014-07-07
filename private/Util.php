@@ -1,7 +1,13 @@
 <?php
 
-// could use this pattern for overloading like in java
-// $args = func_get_args();
+/*
+
+Util.php
+
+Collection of common utility functions and logging functions
+we may use across the whole project
+
+*/
 
 class Util {
     
@@ -25,23 +31,23 @@ class Util {
         return $result;
     }
 
-}
+    public static function p_arr_log($prefix, $content) {
+        Util::hs_log($prefix);
+        Util::arr_log($content);
+    }
 
-function p_arr_log($prefix, $content) {
-    jlog($prefix);
-    arr_log($content);
-}
+    public static function arr_log($content) {
+        ob_start();
+        var_dump($content);
+        $contents = ob_get_contents();
+        ob_end_clean();
+        Util::hs_log($contents);
+    }
 
-function arr_log($content) {
-    ob_start();
-    var_dump($content);
-    $contents = ob_get_contents();
-    ob_end_clean();
-    jlog($contents);
-}
+    public static function hs_log($content) {
+        error_log($content);
+    }
 
-function jlog($content) {
-    error_log($content);
 }
 
 ?>

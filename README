@@ -1,0 +1,69 @@
+
+
+
+
+
+**********************
+KIXEYE CODE CHALLENEGE
+JOSEPH HARDING
+7/8/14
+**********************
+
+
+Prereqs for deploying the high score app:
+
+1) a LAMP server
+2) pdo_mysql extension
+3) a publicly accessible directory in which to put the index.php file
+4) the 'highscore' directory deployed outside of the public directory at the following relative path: index.php/../../highscore
+
+To Get Started:
+
+Define the schema and populate the test data with highscore/util/sample_data.sql using this command on your server (NOTE: by default this will attempt to create a database called jh_scores and a user called hs_admin):
+mysql -u root -p'XXXXX' < sample_data.sql
+
+I've included my small sync script as a reference to help in the deployment of the files from your local machine to your server.
+
+Here are all the service methods available, my server is currently hosting the high score project so feel free to try out these commands as they are below:
+
+curl -H 'content-type:application/json' -d '{"user_id":"Joe", "user_score":"110"}' http://josephharding.net/highscore/service/game/recordScore
+curl -H 'content-type:application/json' -d '{"day":"2014/07/08"}' http://josephharding.net/highscore/service/report/getNumUsersOnDay
+curl http://josephharding.net/highscore/service/report/getLeaders
+curl http://josephharding.net/highscore/service/report/getNumUsersToday
+curl http://josephharding.net/highscore/service/report/getTotalNumUsers
+
+Please note the timezone used in recording when scores are reported will be the time zone of your server. This is important to keep in mind when querying for the number of users who have played today as today may be different for your server then where you are now.
+
+
+
+Further deployment details
+
+On my personal Ubuntu server the setup looks like this:
+
+Apache config file:
+/etc/apache2/sites-enabled/josephharding.net.conf
+
+***
+file contents
+***
+
+<VirtualHost *:80>
+     ServerName josephharding.net
+     DocumentRoot /var/www/main
+     CustomLog ${APACHE_LOG_DIR}/josephharding_access.log combined
+</VirtualHost>
+<VirtualHost *:80>
+     ServerName www.josephharding.net
+     Redirect permanent / http://www.josephharding.net
+</VirtualHost>
+
+***
+
+Symlink at /var/www/main pointing to /home/jharding/main
+
+the index.php file is deployed here:
+/home/jharding/main/highscore/index.php
+
+the highscore directory is deployed here:
+/home/jharding/highscore
+

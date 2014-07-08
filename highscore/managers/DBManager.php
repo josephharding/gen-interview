@@ -16,7 +16,7 @@ class DBManager {
 
     public function __construct() {
         try {
-            $this->m_dbHandle = new PDO("mysql:host=localhost;port=3306;dbname=high_scores", "hs_admin", "kixeye_interview");
+            $this->m_dbHandle = new PDO("mysql:host=localhost;port=3306;dbname=jh_scores", "hs_admin", "kixeye_interview");
             // errors left on here for ease of debugging
             $this->m_dbHandle->setAttribute (PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
         } catch(Exception $e) {
@@ -25,13 +25,13 @@ class DBManager {
     }
     
     /**
-     * Gets all the user ids stored in the users table
+     * Gets all the unique user ids stored in the scores table
      *
      * @return array    an array of user ids
      */
     public function getAllUserIds() {
         $result = array();
-        $statement = $this->m_dbHandle->prepare("SELECT user_id FROM users");
+        $statement = $this->m_dbHandle->prepare("SELECT user_id FROM scores GROUP BY user_id");
         if($statement->execute()) {
             while($row = $statement->fetch(PDO::FETCH_NUM)) {
                 $result[] = $row[0];
@@ -41,13 +41,13 @@ class DBManager {
     }
     
     /**
-     * Gets the number of users in the users table
+     * Gets the number of unique users in the scores table
      *
      * @return int  the number of users in the users table
      */
     public function getNumRowsInUsers() {
         $result = null;
-        $statement = $this->m_dbHandle->prepare("SELECT COUNT(*) FROM users");
+        $statement = $this->m_dbHandle->prepare("SELECT COUNT(*) FROM (SELECT user_id FROM scores GROUP BY user_id) as T");
         if($statement->execute()) {
             while($row = $statement->fetch(PDO::FETCH_NUM)) {
                 $result = $row[0];
@@ -76,33 +76,6 @@ class DBManager {
     }
 
     /**
-     * Insert a new user row
-     * 
-     * @param string $userId    the unique user id
-     */   
-    public function setUserEntry($userId) {
-        $statement = $this->m_dbHandle->prepare("INSERT INTO users (user_id, high_score) VALUE (:user_id, :high_score)");
-        $statement->execute(array('user_id' => $userId, 'high_score' => 0));       
-    }
-
-    /**
-     * Gets the entire user row given the user id
-     *
-     * @return array the user's row formatted as an array
-     */
-    public function getUserEntry($userId) {
-        $result = null;
-        $statement = $this->m_dbHandle->prepare("SELECT * FROM users WHERE user_id = :user_id");
-        if($statement->execute(array('user_id' => $userId))) {
-            while($row = $statement->fetch(PDO::FETCH_NUM)) {
-                $result = $row[0];
-            }
-        }
-        Util::arr_log($result);
-        return $result;
-    }
-    
-    /**
      * Inserts a new score row into the scores table
      *
      * @param string $userId        the unqiue user id
@@ -110,7 +83,7 @@ class DBManager {
      */
     public function addScoreEntry($userId, $userScore) {
         $statement = $this->m_dbHandle->prepare("INSERT INTO scores (user_id, score) VALUE (:user_id, :user_score)");
-        $statement->execute(array('user_id' => $userId, 'user_score' => $userScore));
+        return $statement->execute(array('user_id' => $userId, 'user_score' => $userScore));
     }
     
     /**
@@ -122,24 +95,13 @@ class DBManager {
      */
     public function getUserHighScore($userId) {
         $result = 0;
-        $statement = $this->m_dbHandle->prepare("SELECT high_score FROM users WHERE user_id = :user_id");
+        $statement = $this->m_dbHandle->prepare("SELECT MAX(score) FROM scores where user_id = :user_id");
         if ($statement->execute(array('user_id' => $userId))) {
             while($row = $statement->fetch(PDO::FETCH_NUM)) {
                 $result = $row[0];
             }
         }
         return $result;
-    }
-    
-    /**
-     * Sets a user's high score
-     *
-     * @param string $userID        the user's unique id
-     * @param int    $userScore     the high score for the user
-     */
-    public function setUserHighScore($userId, $userScore) {
-        $statement = $this->m_dbHandle->prepare("UPDATE users SET high_score = :new_high_score WHERE user_id = :user_id");
-        $statement->execute(array('user_id' => $userId, 'new_high_score' => $userScore)); 
     }
     
     /**
@@ -151,7 +113,7 @@ class DBManager {
      */
     public function getTopUserIdsByScore($numUsers) {
         $result = array();
-        $statement = $this->m_dbHandle->prepare("SELECT user_id from users ORDER BY high_score DESC LIMIT :limit");
+        $statement = $this->m_dbHandle->prepare("SELECT t1.user_id FROM scores t1 INNER JOIN( SELECT user_id, MAX(score) score FROM scores GROUP BY user_id ) t2 ON t1.user_id = t2.user_id AND t1.score = t2.score ORDER BY t2.score DESC LIMIT :limit");
         # have to bind here using different pattern in order to cast limit to an int
         $statement->bindValue('limit', $numUsers, PDO::PARAM_INT);
         if($statement->execute()) {

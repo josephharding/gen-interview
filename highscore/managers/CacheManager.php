@@ -17,7 +17,7 @@ define('NUM_LEADERS', 10);
 class CacheManager {
    
     // memcache keys and partial keys
-    const LOWEST_LEADER_KEY = "lowest_leader_score";
+    const LOWEST_LEADER_SCORE_KEY = "lowest_leader_score";
 
     const LEADER_KEY_PREFIX = "leader_";
 
@@ -59,7 +59,7 @@ class CacheManager {
      */
     public function getLowestLeaderScore() {
         $result = 0;
-        $lowestLeader = $this->m_memcache->get(self::LOWEST_LEADER_KEY);
+        $lowestLeader = $this->m_memcache->get(self::LOWEST_LEADER_SCORE_KEY);
         if($lowestLeader != false) {
             $result = $lowestLeader;
         }
@@ -79,7 +79,13 @@ class CacheManager {
             $this->m_memcache->set($this->getLeaderKey($index), $userIds[$index]);
         }
         if($numLeaders > 0) {
-            $this->m_memcache->set(self::LOWEST_LEADER_KEY, $userIds[$numLeaders - 1]);
+            $userToBeat = $userIds[$numLeaders - 1];
+            $scoreToBeat = $this->getUserHighScore($userToBeat);
+            if($scoreToBeat === false) {
+                $scoreToBeat = $database->getUserHighScore($userToBeat);
+                $this->setUserHighScore($userToBeat, $scoreToBeat);
+            }
+            $this->m_memcache->set(self::LOWEST_LEADER_SCORE_KEY, $scoreToBeat);
         }
     }
 
@@ -105,7 +111,7 @@ class CacheManager {
      * @param DBManager $database   the database manager which providesall the user ids
      */
     public function resetCache($database) {
-        $this->m_memcache->delete(self::LOWEST_LEADER_KEY);
+        $this->m_memcache->delete(self::LOWEST_LEADER_SCORE_KEY);
         for($index = 0; $index < NUM_LEADERS; $index++) {
             $this->m_memcache->delete($this->getLeaderKey($index));
         }
@@ -138,5 +144,3 @@ class CacheManager {
     }
 
 }
-
-?>

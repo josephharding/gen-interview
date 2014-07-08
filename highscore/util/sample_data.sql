@@ -1,20 +1,5 @@
-USE high_scores;
-
-DROP TABLE IF EXISTS users;
-CREATE TABLE users (user_id VARCHAR(20) PRIMARY KEY (user_id));
-INSERT INTO users (user_id) VALUES ('Bob');
-INSERT INTO users (user_id) VALUES ('Amanda');
-INSERT INTO users (user_id) VALUES ('Steve');
-INSERT INTO users (user_id) VALUES ('Mary');
-INSERT INTO users (user_id) VALUES ('Joe');
-INSERT INTO users (user_id) VALUES ('Jane');
-INSERT INTO users (user_id) VALUES ('Dan');
-INSERT INTO users (user_id) VALUES ('Phil');
-INSERT INTO users (user_id) VALUES ('Kevin');
-INSERT INTO users (user_id) VALUES ('Sean');
-INSERT INTO users (user_id) VALUES ('Eve');
-INSERT INTO users (user_id) VALUES ('Mark');
-INSERT INTO users (user_id) VALUES ('Debbie');
+CREATE DATABASE jh_scores;
+USE jh_scores;
 
 DROP TABLE IF EXISTS scores;
 CREATE TABLE scores (user_id VARCHAR(20), score INTEGER(20), ts_create TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
@@ -35,8 +20,10 @@ INSERT INTO scores (user_id, score, ts_create) VALUES ('Eve', '10', '2014-07-06 
 INSERT INTO scores (user_id, score, ts_create) VALUES ('Eve', '290', '2014-07-03 07:00:00');
 INSERT INTO scores (user_id, score, ts_create) VALUES ('Mark', '150', '2014-07-02 08:00:00');
 INSERT INTO scores (user_id, score, ts_create) VALUES ('Debbie', '100', '2014-07-01 20:00:00');
+INSERT INTO scores (user_id, score, ts_create) VALUES ('Mark', '60', '2014-07-01 20:00:00');
+INSERT INTO scores (user_id, score, ts_create) VALUES ('Noob', '0', '2014-07-01 20:00:00');
+INSERT INTO scores (user_id, score, ts_create) VALUES ('Steve', '200', '2014-07-01 20:00:00');
 
 DROP USER 'hs_admin'@'localhost';
 CREATE USER 'hs_admin'@'localhost' IDENTIFIED BY 'kixeye_interview';
-GRANT ALL PRIVILEGES ON high_scores.scores TO 'hs_admin'@'localhost';
-GRANT ALL PRIVILEGES ON high_scores.users TO 'hs_admin'@'localhost';
+GRANT ALL PRIVILEGES ON jh_scores.scores TO 'hs_admin'@'localhost';

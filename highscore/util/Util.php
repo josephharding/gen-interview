@@ -31,11 +31,19 @@ class Util {
         return $result;
     }
 
+    /**
+     * Helper function for logging out an array with a title
+     */
     public static function p_arr_log($prefix, $content) {
         Util::hs_log($prefix);
         Util::arr_log($content);
     }
 
+    /**
+     * Logs out the contents of an array, this method is preferred to
+     * print_r($arr, true) because it won't cast bools to ints and will show
+     * null values as null not empty
+     */
     public static function arr_log($content) {
         ob_start();
         var_dump($content);
@@ -44,10 +52,12 @@ class Util {
         Util::hs_log($contents);
     }
 
+    /*
+     * Logging for this project can easily be toggled on and off by toggling
+     * a define or just commenting out the error_log call
+     */
     public static function hs_log($content) {
         error_log($content);
     }
 
 }
-
-?>

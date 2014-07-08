@@ -40,7 +40,7 @@ if(isset($pathArray[PATH_INDEX_LAYER]) && isset($pathArray[PATH_INDEX_SERVICE]) 
             }
 
             // make the service call
-            echo json_encode(call_user_func(array($service, $serviceMethodName), $params)); 
+            echo json_encode(call_user_func(array($service, $serviceMethodName), $params)) . "\n"; 
         } else {
             Util::hs_log("no method with name $serviceMethodName on class $serviceClassName");
         }
@@ -51,4 +51,3 @@ if(isset($pathArray[PATH_INDEX_LAYER]) && isset($pathArray[PATH_INDEX_SERVICE]) 
     Util::hs_log("bad url provided: " . $requestURL['path']);
 }
 
-?>
